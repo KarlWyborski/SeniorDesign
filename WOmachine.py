@@ -147,28 +147,28 @@ class Window:
         self.rightFrame.pack(side=RIGHT)
         
         
-        self.lLeftHead = Label(self.leftFrame, text='Weight', font='Times 36')
+        self.lLeftHead = Label(self.leftFrame, text='Weight', font='Times 62')
         self.lLeftHead.pack()
         
-        self.bUp = Button(self.leftFrame, text='UP', font='Times 24')
+        self.bUp = Button(self.leftFrame, text='UP', font='Times 48')
         self.bUp.pack()
         
-        self.lWeightValue = Label(self.leftFrame, text='0', font='Times 24')
+        self.lWeightValue = Label(self.leftFrame, text='0', font='Times 48')
         self.lWeightValue.pack()
         
-        self.bDown = Button(self.leftFrame, text='DOWN', font='Times 24')
+        self.bDown = Button(self.leftFrame, text='DOWN', font='Times 48')
         self.bDown.pack()
         
-        self.lRightHead = Label(self.rightFrame, text='Sensor Data', font='Times 36')
+        self.lRightHead = Label(self.rightFrame, text='Sensor Data', font='Times 62')
         self.lRightHead.pack()
         
-        self.lVoltage = Label(self.rightFrame, text='Voltage:  ##', font='Times 36')
+        self.lVoltage = Label(self.rightFrame, text='Voltage:  ##', font='Times 62')
         self.lVoltage.pack()
         
-        self.lCurrent = Label(self.rightFrame, text='Current:  ##', font='Times 36')
+        self.lCurrent = Label(self.rightFrame, text='Current:  ##', font='Times 62')
         self.lCurrent.pack()
         
-        self.lDistance = Label(self.rightFrame, text='Distance: ##', font='Times 36')
+        self.lDistance = Label(self.rightFrame, text='Distance: ##', font='Times 62')
         self.lDistance.pack()
         
         
