@@ -1,6 +1,7 @@
+import threading
+import socket
 import RPi.GPIO as GPIO
 import time
-import threading
 from tkinter import *
 
 
