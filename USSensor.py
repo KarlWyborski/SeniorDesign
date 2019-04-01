@@ -199,8 +199,46 @@ def onStart():
     thread_woInProg.daemon = True
     thread_woInProg.start()
 
-
 ##-------------------------------------------------
+##Communications Methods
+    
+def startAccThread():
+    accThread = threading.Thread(target=acceptor)
+    accThread.daemon = True
+    accThread.start()
+
+def acceptor():
+    c, a = sock.accept()
+    
+    cThread = threading.Thread(target=handler, args=(c,a))
+    cThread.daemon = True
+    cThread.start()
+    
+    print(str(a[0]) + ':' + str(a[1]), "connected")
+    
+    while True:
+        pass
+
+def handler(c, a):
+    while True:
+        data = c.recv(1024).decode('utf-8')
+        print(data)
+        
+        if not data:
+            print(str(a[0]) + ':' + str(a[1]), "disconnected")
+            c.close()
+            break
+        
+##-------------------------------------------------
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind(('0.0.0.0', 12343))
+sock.listen(1)
+startAccThread()
+    
+    
+    
+    
 GPIO.setmode(GPIO.BOARD)
 
 GPIO_TRIGGER = 38
