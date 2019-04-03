@@ -244,7 +244,7 @@ def acceptor():
     while not bRun:
         ##breaks when the workout begins
         pass
-    buttonThread.close()
+    buttonThread.terminate()
     print('buttonThread is now closed (maybe)')
 
 def buttonState(c, a):
