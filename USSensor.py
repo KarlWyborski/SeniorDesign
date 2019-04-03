@@ -232,17 +232,17 @@ def acceptor():
             print(data)
             if not data:
                 print('data length is 0')
-                sock.shutdown()
+                sock.shutdown(SHUT_RDWR)
                 sock.close()
                 break
             elif data == 'DISC=':
-                sock.shutdown()
+                sock.shutdown(SHUT_RDWR)
                 sock.close()
                 break
             if data.find('LOGI=') != -1:
                 c.send(b'LOGI=Accepted')
                 if data == 'LOGI=BACK':
-                    sock.shutdown()
+                    sock.shutdown(SHUT_RDWR)
                     sock.close()
                     break
             elif data.find('NEWU=') != -1:
