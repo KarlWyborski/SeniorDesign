@@ -216,9 +216,7 @@ def acceptor():
     while True:
         bLogin = True
         bConn = False
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.bind(('0.0.0.0', 12343))
-        sock.listen(1)
+        
         
         ##Waiting for a connection
         c, a = sock.accept()
@@ -232,18 +230,18 @@ def acceptor():
             print(data)
             if not data:
                 print('data length is 0')
-                sock.shutdown(socket.SHUT_RDWR)
-                sock.close()
+##                c.shutdown(socket.SHUT_RDWR)
+                c.close()
                 break
             elif data == 'DISC=':
-                sock.shutdown(socket.SHUT_RDWR)
-                sock.close()
+##                c.shutdown(socket.SHUT_RDWR)
+                c.close()
                 break
             if data.find('LOGI=') != -1:
                 c.send(b'LOGI=Accepted')
                 if data == 'LOGI=BACK':
-                    sock.shutdown(socket.SHUT_RDWR)
-                    sock.close()
+##                    c.shutdown(socket.SHUT_RDWR)
+                    c.close()
                     break
             elif data.find('NEWU=') != -1:
                 c.send(b'NEWU=Accepted')
@@ -276,9 +274,9 @@ def PREW_string(c):
         
 ##-------------------------------------------------
 
-##sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-##sock.bind(('0.0.0.0', 12343))
-##sock.listen(1)
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind(('0.0.0.0', 12343))
+sock.listen(1)
 startAccThread()
     
     
