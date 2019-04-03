@@ -226,84 +226,48 @@ def acceptor():
         print(str(a[0]) + ':' + str(a[1]), "connected")
         
         ##waits for login information
-        while bLogin:
-            print('wating for login info...')
+        
+        while True:
             data = c.recv(1024).decode('utf-8')
             print(data)
             if not data:
                 print('data length is 0')
-                print(str(a[0]) + ':' + str(a[1]), "disconnected")
-                startAccThread()
-                self.stop()
-                
-            if data.find('LOGI=') != -1:
-                c.send(b'LOGI=Accepted')
-                bLogin = False
-            elif data.find('NEWU=') != -1:
-                c.send(b'NEWU=Accepted')
-                bLogin = False
-            elif data.find('LOGI=BACK') != -1:
-                bLogin = False
                 sock.shutdown()
                 sock.close()
-                bConn = False
+                break
+            elif data == 'DISC=':
+                sock.shutdown()
+                sock.close()
+                break
+            if data.find('LOGI=') != -1:
+                c.send(b'LOGI=Accepted')
+                if data == 'LOGI=BACK':
+                    sock.shutdown()
+                    sock.close()
+                    break
+            elif data.find('NEWU=') != -1:
+                c.send(b'NEWU=Accepted')
+            elif data.find('BTTN=') != -1:
+                if data == 'BTTN=Wup':
+                    onWeightUp()
+                if data == 'BTTN=Wdown':
+                    onWeightDown()
+                if data == 'BTTN=Rup':
+                    onRepUp()
+                if data == 'BTTN=Rdown':
+                    onRepDown()
+                if data == 'BTTN=Sup':
+                    onSetUp()
+                if data == 'BTTN=Sdown':
+                    onSetDown()
+                if data == 'BTTN=Start':
+                    onStart()
+                PREW_string(c)
             else:
-                c.send(b'EROR=LOGI is expected')
-                
-                
-        data = c.recv(1024).decode('utf-8')
-        if data == 'DISC=':
-            sock.shutdown()
-            sock.close()
-            bConn = False
-        else:
-            pass
-        
-        ##waits for button commands
-        if bConn:
-            c.send(b'PREW=')
-            time.sleep(0.1)
-            PREW_string(c)
-            buttonThread = multiprocessing.Process(target=buttonState, args=(c,a))
-    ##    buttonThread.daemon = True
-            buttonThread.start()
+                c.send(b'EROR=No expected')
+                    
+                    
             
-        while not bRun and bConn:
-            ##breaks when the workout begins
-            pass
-        if bConn:
-            buttonThread.terminate()
-            print('buttonThread is now closed (maybe)')
-
-def buttonState(c, a):
-    while True:
-        print('waiting for button...')
-        data = c.recv(1024).decode('utf-8')
-        print('*' + data + '*')
-        
-        if not data:
-            print('data length is 0')
-            print(str(a[0]) + ':' + str(a[1]), "disconnected")
-            startAccThread()
-            self.stop()
-        
-        
-        if data.find('BTTN=') != -1:
-            if data == 'BTTN=Wup':
-                onWeightUp()
-            if data == 'BTTN=Wdown':
-                onWeightDown()
-            if data == 'BTTN=Rup':
-                onRepUp()
-            if data == 'BTTN=Rdown':
-                onRepDown()
-            if data == 'BTTN=Sup':
-                onSetUp()
-            if data == 'BTTN=Sdown':
-                onSetDown()
-            if data == 'BTTN=Start':
-                onStart()
-            PREW_string(c)
 
 def PREW_string(c):
     print(('PREW=' + str(iGoalLbs) + ',' + str(iGoalSet) + ',' + str(iGoalRep)))
