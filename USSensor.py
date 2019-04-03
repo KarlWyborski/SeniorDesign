@@ -217,10 +217,6 @@ def acceptor():
     ##Waiting for a connection
     c, a = sock.accept()
     
-    cThread = threading.Thread(target=handler, args=(c,a))
-    cThread.daemon = True
-    cThread.start()
-    
     print(str(a[0]) + ':' + str(a[1]), "connected")
     
     ##waits for login information
@@ -229,6 +225,7 @@ def acceptor():
         data = c.recv().decode('utf-8')
         if not data:
             print('data length is 0')
+            print(str(a[0]) + ':' + str(a[1]), "disconnected")
             startAccThread()
             self.stop()
             
