@@ -222,7 +222,8 @@ def acceptor():
     ##waits for login information
     while True:
         print('wating for login info...')
-        data = c.recv().decode('utf-8')
+        data = c.recv(1024).decode('utf-8')
+        print(data)
         if not data:
             print('data length is 0')
             print(str(a[0]) + ':' + str(a[1]), "disconnected")
