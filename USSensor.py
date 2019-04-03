@@ -230,13 +230,13 @@ def acceptor():
             startAccThread()
             self.stop()
             
-        if data.find('LOGIN=') != -1:
+        if data.find('LOGI=') != -1:
             bLogin = False
-        elif data.find('NEWUSER=') != -1:
+        elif data.find('NEWU=') != -1:
             bLogin = False
         else:
-            c.send(b'ERROR=LOGIN is expected')
-    c.send(b'PREWORK=')
+            c.send(b'EROR=LOGI is expected')
+    c.send(b'PREW=')
     ##waits for button commands
     buttonThread = multiprocessing.Process(target=buttonState, args=(c,a))
 ##    buttonThread.daemon = True
