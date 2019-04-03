@@ -250,7 +250,7 @@ def acceptor():
                 
                 
         data = c.recv(1024).decode('utf-8')
-        if data = 'DISC=':
+        if data == 'DISC=':
             sock.shutdown()
             sock.close()
             bConn = False
