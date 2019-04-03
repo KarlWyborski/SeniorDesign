@@ -1,4 +1,4 @@
-import multiprocessing
+import threading
 import socket
 import RPi.GPIO as GPIO
 import time
@@ -196,7 +196,7 @@ def onStart():
     #into right frame
     lblDistance.pack(anchor=W)
     
-    thread_woInProg = multiprocessing.Process(target=woInProg)
+    thread_woInProg = threading.Thread(target=woInProg)
 ##    thread_woInProg.daemon = True
     thread_woInProg.start()
 
@@ -204,7 +204,7 @@ def onStart():
 ##Communications Methods
     
 def startAccThread():
-    accThread = multiprocessing.Process(target=acceptor)
+    accThread = threading.Thread(target=acceptor)
 ##    accThread.daemon = True
     accThread.start()
 
