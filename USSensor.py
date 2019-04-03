@@ -86,7 +86,7 @@ def distance():
 def woInProg():
     global iCurSet
     global iCurRep
-    
+    global bRun
     
     
     bRun = True
@@ -209,6 +209,12 @@ def startAccThread():
     accThread.start()
 
 def acceptor():
+    global userName
+    global password
+    
+    
+    
+    ##Waiting for a connection
     c, a = sock.accept()
     
     cThread = threading.Thread(target=handler, args=(c,a))
@@ -217,18 +223,41 @@ def acceptor():
     
     print(str(a[0]) + ':' + str(a[1]), "connected")
     
+    ##waits for login information
     while True:
+        print('wating for login info...')
+        data = c.recv().decode('utf-8')
+        if not data:
+            print('data length is 0')
+            startAccThread()
+            self.stop()
+            
+        if data.find('LOGIN=') != -1:
+            pass
+        elif data.find('NEWUSER=') != -1:
+            pass
+        else:
+            c.send(b'ERROR=LOGIN is expected')
+    
+    ##waits for button commands
+    buttonThread = threading.Thread(target=buttonState, args=(c,a))
+    buttonThread.daemon = True
+    buttonThread.start()
+    while not bRun:
+        ##breaks when the workout begins
         pass
+    buttonThread.close()
+    print('buttonThread is now closed (maybe)')
 
-def handler(c, a):
+def buttonState(c, a):
     while True:
         data = c.recv(1024).decode('utf-8')
         print(data)
         
         if not data:
-            print(str(a[0]) + ':' + str(a[1]), "disconnected")
-            c.close()
-            break
+            print('data length is 0')
+        
+        
         
 ##-------------------------------------------------
 
@@ -255,6 +284,7 @@ iGoalSet=1
 iCurLbs=0
 iCurRep=1
 iCurSet=1
+bRun = True
 
 win = Tk()
 ##win.geometry("900x600")
