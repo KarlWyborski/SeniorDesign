@@ -199,6 +199,11 @@ def onStart():
     thread_woInProg = threading.Thread(target=woInProg)
     thread_woInProg.daemon = True
     thread_woInProg.start()
+    
+    try:
+        WOIP_string()
+    except:
+        print('nothing connected')
 
 ##-------------------------------------------------
 ##Communications Methods
