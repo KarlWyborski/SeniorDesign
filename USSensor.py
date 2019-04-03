@@ -279,6 +279,7 @@ def buttonState(c, a):
             PREW_string(c)
 
 def PREW_string(c):
+    print(('PREW=' + str(iGoalLbs) + ',' + str(iGoalSet) + ',' + str(iGoalRep)))
     c.send(('PREW=' + str(iGoalLbs) + ',' + str(iGoalSet) + ',' + str(iGoalRep)).encode('utf-8'))
         
         
