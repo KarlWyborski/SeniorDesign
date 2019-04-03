@@ -212,43 +212,66 @@ def acceptor():
     global userName
     global password
     global bRun
-    bLogin = True
     
-    
-    ##Waiting for a connection
-    c, a = sock.accept()
-    
-    print(str(a[0]) + ':' + str(a[1]), "connected")
-    
-    ##waits for login information
-    while bLogin:
-        print('wating for login info...')
+    while True:
+        bLogin = True
+        bConn = False
+        
+        
+        ##Waiting for a connection
+        c, a = sock.accept()
+        bConn = True
+        print(str(a[0]) + ':' + str(a[1]), "connected")
+        
+        ##waits for login information
+        while bLogin:
+            print('wating for login info...')
+            data = c.recv(1024).decode('utf-8')
+            print(data)
+            if not data:
+                print('data length is 0')
+                print(str(a[0]) + ':' + str(a[1]), "disconnected")
+                startAccThread()
+                self.stop()
+                
+            if data.find('LOGI=') != -1:
+                c.send(b'LOGI=Accepted')
+                bLogin = False
+            elif data.find('NEWU=') != -1:
+                c.send(b'NEWU=Accepted')
+                bLogin = False
+            elif data.find('LOGI=BACK') != -1:
+                bLogin = False
+                sock.shutdown()
+                sock.close()
+                bConn = False
+            else:
+                c.send(b'EROR=LOGI is expected')
+                
+                
         data = c.recv(1024).decode('utf-8')
-        print(data)
-        if not data:
-            print('data length is 0')
-            print(str(a[0]) + ':' + str(a[1]), "disconnected")
-            startAccThread()
-            self.stop()
-            
-        if data.find('LOGI=') != -1:
-            bLogin = False
-        elif data.find('NEWU=') != -1:
-            bLogin = False
+        if data = 'DISC=':
+            sock.shutdown()
+            sock.close()
+            bConn = False
         else:
-            c.send(b'EROR=LOGI is expected')
-    c.send(b'PREW=')
-    
-    ##waits for button commands
-    PREW_string(c)
-    buttonThread = multiprocessing.Process(target=buttonState, args=(c,a))
-##    buttonThread.daemon = True
-    buttonThread.start()
-    while not bRun:
-        ##breaks when the workout begins
-        pass
-    buttonThread.terminate()
-    print('buttonThread is now closed (maybe)')
+            pass
+        
+        ##waits for button commands
+        if bConn:
+            c.send(b'PREW=')
+            time.sleep(0.1)
+            PREW_string(c)
+            buttonThread = multiprocessing.Process(target=buttonState, args=(c,a))
+    ##    buttonThread.daemon = True
+            buttonThread.start()
+            
+        while not bRun and bConn:
+            ##breaks when the workout begins
+            pass
+        if bConn:
+            buttonThread.terminate()
+            print('buttonThread is now closed (maybe)')
 
 def buttonState(c, a):
     while True:
