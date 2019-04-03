@@ -197,7 +197,7 @@ def onStart():
     lblDistance.pack(anchor=W)
     
     thread_woInProg = multiprocessing.Process(target=woInProg)
-    thread_woInProg.daemon = True
+##    thread_woInProg.daemon = True
     thread_woInProg.start()
 
 ##-------------------------------------------------
@@ -205,7 +205,7 @@ def onStart():
     
 def startAccThread():
     accThread = multiprocessing.Process(target=acceptor)
-    accThread.daemon = True
+##    accThread.daemon = True
     accThread.start()
 
 def acceptor():
@@ -239,7 +239,7 @@ def acceptor():
     c.send(b'PREWORK=')
     ##waits for button commands
     buttonThread = multiprocessing.Process(target=buttonState, args=(c,a))
-    buttonThread.daemon = True
+##    buttonThread.daemon = True
     buttonThread.start()
     while not bRun:
         ##breaks when the workout begins
