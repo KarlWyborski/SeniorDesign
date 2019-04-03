@@ -250,6 +250,7 @@ def acceptor():
                 c.send(b'NEWU=Accepted')
             elif data.find('BTTN=') != -1:
                 if data == 'BTTN=Wup':
+                    print('i Goal Lba: ' + str(iGoalLbs))
                     onWeightUp()
                 if data == 'BTTN=Wdown':
                     onWeightDown()
