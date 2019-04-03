@@ -134,7 +134,7 @@ def woInProg():
                 bRun = False
         lblSet.configure(text = 'Set: ' + str(iCurSet))
         lblRep.configure(text = 'Rep: ' + str(iCurRep))
-        
+        WOIP_string()
 
 
 def cleanup():
@@ -197,7 +197,7 @@ def onStart():
     lblDistance.pack(anchor=W)
     
     thread_woInProg = threading.Thread(target=woInProg)
-##    thread_woInProg.daemon = True
+    thread_woInProg.daemon = True
     thread_woInProg.start()
 
 ##-------------------------------------------------
@@ -205,7 +205,7 @@ def onStart():
     
 def startAccThread():
     accThread = threading.Thread(target=acceptor)
-##    accThread.daemon = True
+    accThread.daemon = True
     accThread.start()
 
 def acceptor():
@@ -265,6 +265,8 @@ def acceptor():
                 if data == 'BTTN=Start':
                     onStart()
                 PREW_string(c)
+            elif data.find('WOIP=') != -1:
+                pass
             else:
                 c.send(b'EROR=No expected')
                     
@@ -274,6 +276,10 @@ def acceptor():
 def PREW_string(c):
     print(('PREW=' + str(iGoalLbs) + ',' + str(iGoalSet) + ',' + str(iGoalRep)))
     c.send(('PREW=' + str(iGoalLbs) + ',' + str(iGoalSet) + ',' + str(iGoalRep)).encode('utf-8'))
+
+def WOIP_string(c):
+    print(('WOIP=' + str(iCurLbs) + ',' + str(iCurSet) + ',' + str(iCurRep)))
+    c.send(('WOIP=' + str(iCurLbs) + ',' + str(iCurSet) + ',' + str(iCurRep)).encode('utf-8'))
         
         
 ##-------------------------------------------------
