@@ -216,7 +216,9 @@ def acceptor():
     while True:
         bLogin = True
         bConn = False
-        
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind(('0.0.0.0', 12343))
+        sock.listen(1)
         
         ##Waiting for a connection
         c, a = sock.accept()
@@ -310,9 +312,9 @@ def PREW_string(c):
         
 ##-------------------------------------------------
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.bind(('0.0.0.0', 12343))
-sock.listen(1)
+##sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+##sock.bind(('0.0.0.0', 12343))
+##sock.listen(1)
 startAccThread()
     
     
