@@ -212,6 +212,9 @@ def acceptor():
     global userName
     global password
     global bRun
+    global iGoalLbs
+    global iGoalSet
+    global iGoalRep
     
     while True:
         bLogin = True
