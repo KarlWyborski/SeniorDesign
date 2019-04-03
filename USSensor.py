@@ -236,7 +236,7 @@ def acceptor():
             bLogin = False
         else:
             c.send(b'ERROR=LOGIN is expected')
-    c.send(b'PASS')
+    c.send(b'PREWORK=')
     ##waits for button commands
     buttonThread = threading.Thread(target=buttonState, args=(c,a))
     buttonThread.daemon = True
@@ -249,11 +249,15 @@ def acceptor():
 
 def buttonState(c, a):
     while True:
+        print('waiting for button...')
         data = c.recv(1024).decode('utf-8')
         print(data)
         
         if not data:
             print('data length is 0')
+            print(str(a[0]) + ':' + str(a[1]), "disconnected")
+            startAccThread()
+            self.stop()
         
         
         
