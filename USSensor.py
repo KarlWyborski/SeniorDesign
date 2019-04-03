@@ -248,6 +248,7 @@ def acceptor():
     print('buttonThread is now closed (maybe)')
 
 def buttonState(c, a):
+    global bRun
     while True:
         print('waiting for button...')
         data = c.recv(1024).decode('utf-8')
@@ -259,6 +260,26 @@ def buttonState(c, a):
             startAccThread()
             self.stop()
         
+        
+        if data.find('BTTN=') != -1:
+            if data == 'BTTN=Wup':
+                onWeightUp()
+            if data == 'BTTN=Wdown':
+                onWeightDown()
+            if data == 'BTTN=Rup':
+                onRepUp()
+            if data == 'BTTN=Rdown':
+                onRepDown()
+            if data == 'BTTN=Sup':
+                onSetUp()
+            if data == 'BTTN=Sdown':
+                onSetDown()
+            if data == 'BTTN=Start':
+                onStart()
+            PREW_string(c)
+
+def PREW_string(c):
+    c.send(('PREW=' + str(iGoalLbs) + ',' + str(iGoalSet) + ',' + str(iGoalRep)).encode('utf-8'))
         
         
 ##-------------------------------------------------
