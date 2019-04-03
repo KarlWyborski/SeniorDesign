@@ -211,7 +211,7 @@ def startAccThread():
 def acceptor():
     global userName
     global password
-    
+    bLogin = True
     
     
     ##Waiting for a connection
@@ -220,7 +220,7 @@ def acceptor():
     print(str(a[0]) + ':' + str(a[1]), "connected")
     
     ##waits for login information
-    while True:
+    while bLogin:
         print('wating for login info...')
         data = c.recv(1024).decode('utf-8')
         print(data)
@@ -231,12 +231,12 @@ def acceptor():
             self.stop()
             
         if data.find('LOGIN=') != -1:
-            pass
+            bLogin = False
         elif data.find('NEWUSER=') != -1:
-            pass
+            bLogin = False
         else:
             c.send(b'ERROR=LOGIN is expected')
-    
+    c.send(b'PASS')
     ##waits for button commands
     buttonThread = threading.Thread(target=buttonState, args=(c,a))
     buttonThread.daemon = True
