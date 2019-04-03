@@ -1,4 +1,4 @@
-import threading
+import multiprocessing
 import socket
 import RPi.GPIO as GPIO
 import time
@@ -196,7 +196,7 @@ def onStart():
     #into right frame
     lblDistance.pack(anchor=W)
     
-    thread_woInProg = threading.Thread(target=woInProg)
+    thread_woInProg = multiprocessing.Process(target=woInProg)
     thread_woInProg.daemon = True
     thread_woInProg.start()
 
@@ -204,7 +204,7 @@ def onStart():
 ##Communications Methods
     
 def startAccThread():
-    accThread = threading.Thread(target=acceptor)
+    accThread = multiprocessing.Process(target=acceptor)
     accThread.daemon = True
     accThread.start()
 
@@ -238,7 +238,7 @@ def acceptor():
             c.send(b'ERROR=LOGIN is expected')
     c.send(b'PREWORK=')
     ##waits for button commands
-    buttonThread = threading.Thread(target=buttonState, args=(c,a))
+    buttonThread = multiprocessing.Process(target=buttonState, args=(c,a))
     buttonThread.daemon = True
     buttonThread.start()
     while not bRun:
@@ -251,7 +251,7 @@ def buttonState(c, a):
     while True:
         print('waiting for button...')
         data = c.recv(1024).decode('utf-8')
-        print(data)
+        print('*' + data + '*')
         
         if not data:
             print('data length is 0')
