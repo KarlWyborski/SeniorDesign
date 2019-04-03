@@ -211,6 +211,7 @@ def startAccThread():
 def acceptor():
     global userName
     global password
+    global bRun
     bLogin = True
     
     
@@ -237,7 +238,9 @@ def acceptor():
         else:
             c.send(b'EROR=LOGI is expected')
     c.send(b'PREW=')
+    
     ##waits for button commands
+    PREW_string(c)
     buttonThread = multiprocessing.Process(target=buttonState, args=(c,a))
 ##    buttonThread.daemon = True
     buttonThread.start()
@@ -248,7 +251,6 @@ def acceptor():
     print('buttonThread is now closed (maybe)')
 
 def buttonState(c, a):
-    global bRun
     while True:
         print('waiting for button...')
         data = c.recv(1024).decode('utf-8')
