@@ -14,6 +14,7 @@ def onWeightUp():
     if iGoalLbs < 128:
         iGoalLbs += 1
     lblWeightValue.configure(text=str(iGoalLbs))
+    PREW_string()
 
 def onWeightDown():
     global iGoalLbs
@@ -21,6 +22,7 @@ def onWeightDown():
     if iGoalLbs > 1:
         iGoalLbs -= 1
     lblWeightValue.configure(text=str(iGoalLbs))
+    PREW_string()
 
 def onSetUp():
     global iGoalSet
@@ -28,6 +30,7 @@ def onSetUp():
     if iGoalSet < 10:
         iGoalSet += 1
     lblSetValue.configure(text=str(str(iGoalSet)))
+    PREW_string()
 
 def onSetDown():
     global iGoalSet
@@ -35,6 +38,7 @@ def onSetDown():
     if iGoalSet > 1:
         iGoalSet -= 1
     lblSetValue.configure(text=str(str(iGoalSet)))
+    PREW_string()
     
 def onRepUp():
     global iGoalRep
@@ -42,6 +46,7 @@ def onRepUp():
     if iGoalRep < 10:
         iGoalRep += 1
     lblRepValue.configure(text=str(iGoalRep))
+    PREW_string()
 
 def onRepDown():
     global iGoalRep
@@ -49,6 +54,7 @@ def onRepDown():
     if iGoalRep > 1:
         iGoalRep -= 1
     lblRepValue.configure(text=str(iGoalRep))
+    PREW_string()
 
 
 
@@ -134,8 +140,8 @@ def woInProg():
                 bRun = False
         lblSet.configure(text = 'Set: ' + str(iCurSet))
         lblRep.configure(text = 'Rep: ' + str(iCurRep))
+        
         WOIP_string()
-
 
 def cleanup():
     GPIO.cleanup()
@@ -200,10 +206,7 @@ def onStart():
     thread_woInProg.daemon = True
     thread_woInProg.start()
     
-    try:
-        WOIP_string()
-    except:
-        print('nothing connected')
+    WOIP_string()
 
 ##-------------------------------------------------
 ##Communications Methods
@@ -224,11 +227,11 @@ def acceptor():
     while True:
         bLogin = True
         bConn = False
-        
+        global conn
         
         ##Waiting for a connection
         c, a = sock.accept()
-        bConn = True
+        conn = [c, a]
         print(str(a[0]) + ':' + str(a[1]), "connected")
         
         ##waits for login information
@@ -269,7 +272,6 @@ def acceptor():
                     onSetDown()
                 if data == 'BTTN=Start':
                     onStart()
-                PREW_string(c)
             elif data.find('WOIP=') != -1:
                 pass
             else:
@@ -278,14 +280,19 @@ def acceptor():
                     
             
 
-def PREW_string(c):
+def PREW_string():
     print(('PREW=' + str(iGoalLbs) + ',' + str(iGoalSet) + ',' + str(iGoalRep)))
-    c.send(('PREW=' + str(iGoalLbs) + ',' + str(iGoalSet) + ',' + str(iGoalRep)).encode('utf-8'))
+    try:
+        conn[0].send(('PREW=' + str(iGoalLbs) + ',' + str(iGoalSet) + ',' + str(iGoalRep)).encode('utf-8'))
+    except:
+        print('no connection')
 
-def WOIP_string(c):
+def WOIP_string():
     print(('WOIP=' + str(iCurLbs) + ',' + str(iCurSet) + ',' + str(iCurRep)))
-    c.send(('WOIP=' + str(iCurLbs) + ',' + str(iCurSet) + ',' + str(iCurRep)).encode('utf-8'))
-        
+    try:
+        conn[0].send(('WOIP=' + str(iCurLbs) + ',' + str(iCurSet) + ',' + str(iCurRep)).encode('utf-8'))
+    except:
+        print('no connection')
         
 ##-------------------------------------------------
 
@@ -293,6 +300,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind(('0.0.0.0', 12343))
 sock.listen(1)
 startAccThread()
+conn = []
     
     
     
