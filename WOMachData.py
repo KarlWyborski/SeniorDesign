@@ -3,6 +3,7 @@ import socket
 import RPi.GPIO as GPIO
 import time
 from tkinter import *
+import os
 
 
 
@@ -249,7 +250,16 @@ def acceptor():
                 c.close()
                 break
             if data.find('LOGI=') != -1:
-                c.send(b'LOGI=Accepted')
+                f = open(dataPath + '/' + fileUserLogin, 'r')
+                userInfo = (data.split('=')[1]).split(',')
+                for line in f.read():
+                    if userInfo[0] == line.split(',')[1]:
+                        if userInfo[1] == line.split(',')[2]:
+                            c.send(('LOGI=' + line).encode('utf-8'))
+                        else:
+                            c.send(b'LOGI=incorrect password')
+                    else:
+                        c.send(b'LOGI=User not found')
                 PREW_string()
                 if data == 'LOGI=BACK':
 ##                    c.shutdown(socket.SHUT_RDWR)
@@ -303,9 +313,39 @@ sock.listen(1)
 startAccThread()
 conn = []
     
+
+##File IO variables and setupo
+dataPath = './data'
+fileUserLogin = 'UserLogin.txt'
+fileWoPlans = 'WoPlans.txt'
+fileWoData = 'WoData.txt'
+
+if not os.path.isdir(dataPath):
+    os.mkdir(dataPath)
+    print('Creating ./data folder...')
     
-    
-    
+try:
+    f = open(dataPath + '/' + fileUserLogin, 'r')
+    print('File for UserLogin was found.')
+except FileNotFoundError:
+    print('File for UserLogin not found. Creating new file...')
+    f = open(dataPath + '/' + fileUserLogin, 'w')
+
+try:
+    f = open(dataPath + '/' + fileWoPlans, 'r')
+    print('File for WoPlans was found.')
+except FileNotFoundError:
+    print('File for WoPlans not found. Creating new file...')
+    f = open(dataPath + '/' + fileWoPlans, 'w')
+
+try:
+    f = open(dataPath + '/' + fileWoData, 'r')
+    print('File for WoData was found.')
+except FileNotFoundError:
+    print('File for WoData not found. Creating new file...')
+    f = open(dataPath + '/' + fileWoData, 'w')
+
+##GPIO variables
 GPIO.setmode(GPIO.BOARD)
 
 GPIO_TRIGGER = 38
@@ -334,33 +374,33 @@ rightFrame = Frame(win, borderwidth=10)
 rightFrame.pack(side=LEFT, fill=Y)
 
 
-lblLeftHead = Label(leftFrame, text='Left', font='Times 24')
+lblLeftHead = Label(leftFrame, text='Left', font='Times 36')
 lblLeftHead.pack()
-lblCenterHead = Label(centerFrame, text='Center',font='Times 24')
+lblCenterHead = Label(centerFrame, text='Center',font='Times 36')
 lblCenterHead.pack()
-lblRightHead = Label(rightFrame, text='Right', font='Times 24')
+lblRightHead = Label(rightFrame, text='Right', font='Times 36')
 lblRightHead.pack()
 
 
 
-btnStart = Button(centerFrame, text='Start', font='Times 12', command=onStart)
+btnStart = Button(centerFrame, text='Start', font='Times 24', command=onStart)
 
-btnWeightUp = Button(leftFrame, text='UP', font='Times 12', command=onWeightUp)
-lblWeightValue = Label(leftFrame, text=str(iGoalLbs), font='Times 12')
-btnWeightDown = Button(leftFrame, text='DOWN', font='Times 12', command=onWeightDown)
+btnWeightUp = Button(leftFrame, text='UP', font='Times 24', command=onWeightUp)
+lblWeightValue = Label(leftFrame, text=str(iGoalLbs), font='Times 24')
+btnWeightDown = Button(leftFrame, text='DOWN', font='Times 24', command=onWeightDown)
 
-btnSetUp = Button(centerFrame, text='UP', font='Times 12', command=onSetUp)
-lblSetValue = Label(centerFrame, text=str(iGoalSet), font='Times 12')
-btnSetDown = Button(centerFrame, text='DOWN', font='Times 12', command=onSetDown)
+btnSetUp = Button(centerFrame, text='UP', font='Times 24', command=onSetUp)
+lblSetValue = Label(centerFrame, text=str(iGoalSet), font='Times 24')
+btnSetDown = Button(centerFrame, text='DOWN', font='Times 24', command=onSetDown)
 
-btnRepUp = Button(rightFrame, text='UP', font='Times 12', command=onRepUp)
-lblRepValue = Label(rightFrame, text=str(iGoalRep), font='Times 12')
-btnRepDown = Button(rightFrame, text='DOWN', font='Times 12', command=onRepDown)
+btnRepUp = Button(rightFrame, text='UP', font='Times 24', command=onRepUp)
+lblRepValue = Label(rightFrame, text=str(iGoalRep), font='Times 24')
+btnRepDown = Button(rightFrame, text='DOWN', font='Times 24', command=onRepDown)
 
 
-lblWeight = Label(leftFrame, text='lblWeight', font='Times 12')
-lblSet = Label(leftFrame, text='lblSet', font='Times 12')
-lblRep = Label(leftFrame, text='lblRep', font='Times 12')
+lblWeight = Label(leftFrame, text='lblWeight', font='Times 24')
+lblSet = Label(leftFrame, text='lblSet', font='Times 24')
+lblRep = Label(leftFrame, text='lblRep', font='Times 24')
 
 
 initTK()
@@ -374,5 +414,6 @@ lblDistance = Label(rightFrame, text='Distance: ##', font='Times 24')
 ##btnDown.configure(command=onDown)
 
 
+win.geometry('800x600')
 win.protocol("WM_DELETE_WINDOW", cleanup)
 win.mainloop()
