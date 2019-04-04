@@ -257,13 +257,15 @@ def acceptor():
                         if userInfo[0].lower() == line.split(',')[1].lower():
                             if userInfo[1] == line.split(',')[2]:
                                 c.send(('LOGI=' + line).encode('utf-8'))
+                                time.sleep(0.1)
+                                PREW_string()
                             else:
                                 c.send(b'LOGI=incorrect password')
                         else:
                             c.send(b'LOGI=user not found')
                 else:
                     c.send(('LOGI=' + f.read()[int(userInfo[0])]).encode('utf-8'))
-                PREW_string()
+                
             elif data.find('NEWU=') != -1:
                 c.send(b'NEWU=Accepted')
             elif data.find('BTTN=') != -1:
