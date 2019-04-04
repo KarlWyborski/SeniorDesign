@@ -252,19 +252,18 @@ def acceptor():
             if data.find('LOGI=') != -1:
                 f = open(dataPath + '/' + fileUserLogin, 'r')
                 userInfo = (data.split('=')[1]).split(',')
-                for line in f.read():
-                    if userInfo[0].lower() == line.split(',')[1].lower():
-                        if userInfo[1] == line.split(',')[2]:
-                            c.send(('LOGI=' + line).encode('utf-8'))
+                if len(userInfo) > 1:
+                    for line in f.readlines():
+                        if userInfo[0].lower() == line.split(',')[1].lower():
+                            if userInfo[1] == line.split(',')[2]:
+                                c.send(('LOGI=' + line).encode('utf-8'))
+                            else:
+                                c.send(b'LOGI=incorrect password')
                         else:
-                            c.send(b'LOGI=incorrect password')
-                    else:
-                        c.send(b'LOGI=User not found')
+                            c.send(b'LOGI=user not found')
+                else:
+                    c.send(('LOGI=' + f.read()[int(userInfo[0])]).encode('utf-8'))
                 PREW_string()
-                if data == 'LOGI=BACK':
-##                    c.shutdown(socket.SHUT_RDWR)
-                    c.close()
-                    break
             elif data.find('NEWU=') != -1:
                 c.send(b'NEWU=Accepted')
             elif data.find('BTTN=') != -1:
