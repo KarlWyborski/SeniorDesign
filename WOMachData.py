@@ -253,7 +253,7 @@ def acceptor():
                 f = open(dataPath + '/' + fileUserLogin, 'r')
                 userInfo = (data.split('=')[1]).split(',')
                 for line in f.read():
-                    if userInfo[0] == line.split(',')[1]:
+                    if userInfo[0].lower() == line.split(',')[1].lower():
                         if userInfo[1] == line.split(',')[2]:
                             c.send(('LOGI=' + line).encode('utf-8'))
                         else:
