@@ -307,7 +307,7 @@ def acceptor():
             elif data.find('NEWU=') != -1:
                 i = 0
                 bWrite = True
-                f = open(dataPath + '/' + fileUserLogin, 'a')
+                f = open(dataPath + '/' + fileUserLogin, 'a+')
                 userInfo = (data.split('=')[1]).split(',')
                 for line in f.readlines():
                     if userInfo[0] == line.split(',')[1]:
