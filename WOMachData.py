@@ -88,10 +88,9 @@ def distance(f, SessionID):
     if distance > 100:
         distance = -1
     else:
-        f.write(str(time.time()) +','+ SessionID +','+ str(distance))
+        arrDistData.append(str(time.time()) +','+ str(distance) +','+ str(SessionID))
     lblDistance.configure(text='Distance: ' + str(round(distance)))
     
-    arrDistData.append()
     
     time.sleep(0.1)
     return distance
@@ -106,10 +105,12 @@ def woInProg():
     bRun = True
     b1 = True
     b2 = True
-    f = open(dataPath + '/' + fileSessionData, 'a')
+    f = open(dataPath + '/' + fileSessionData, 'r')
     SessionID = 0
     for line in f.readlines():
         SessionID += 1
+    f.close()
+    f = open(dataPath + '/' + fileSessionData, 'a')
     f.write(str(SessionID)+','+ UserID + str(time.time()))
     f.close()
                 
@@ -130,8 +131,8 @@ def woInProg():
         tmrStart = time.time()
         #state where we are going up
         while b2:
-            dist = distance()
-            if dist < 30:
+            dist = distance(f, SessionID)
+            if dist < 30 and dist != -1:
                 b2 = False
                 print('b2 false')
         
@@ -154,12 +155,15 @@ def woInProg():
             iCurRep = 1
             if iCurSet > iGoalSet:
                 bRun = False
-                f.close()
         lblSet.configure(text = 'Set: ' + str(iCurSet))
         lblRep.configure(text = 'Rep: ' + str(iCurRep))
         
         WOIP_string()
-
+    for row in arrDistData:
+        f.write('\n' + row)
+    f.close()
+    
+    
 def cleanup():
     GPIO.cleanup()
     win.destroy()
@@ -387,6 +391,13 @@ try:
 except FileNotFoundError:
     print('File for UserLogin not found. Creating new file...')
     f = open(dataPath + '/' + fileUserLogin, 'w')
+    
+try:
+    f = open(dataPath + '/' + fileSessionData, 'r')
+    print('File for UserLogin was found.')
+except FileNotFoundError:
+    print('File for UserLogin not found. Creating new file...')
+    f = open(dataPath + '/' + fileSessionData, 'w')
 
 try:
     f = open(dataPath + '/' + fileWoPlans, 'r')
@@ -403,10 +414,12 @@ except FileNotFoundError:
     f = open(dataPath + '/' + fileWoData, 'w')
 
 #User Variables
-UserID = -1
-UserName = 'n/a'
+UserID = '-1'
+UdserName = 'n/a'
 FirstName= 'n/a'
 
+#Wordout variables
+arrDistData = []
 
 
 ##GPIO variables
