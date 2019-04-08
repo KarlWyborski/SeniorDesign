@@ -307,7 +307,7 @@ def acceptor():
             elif data.find('NEWU=') != -1:
                 i = 0
                 bWrite = True
-                f = open(dataPath + '/' + fileUserLogin, 'a+')
+                f = open(dataPath + '/' + fileUserLogin, 'r')
                 userInfo = (data.split('=')[1]).split(',')
                 print(userInfo)
                 for line in f.readlines():
@@ -318,6 +318,8 @@ def acceptor():
                         break
                     i += 1
                 if bWrite:
+                    f.close()
+                    f.open(dataPath +'/'+ fileUserLogin, 'a')
                     f.write('\n'+ str(i) + ',' + userInfo[0] + ',' + userInfo[1] + ',' + userInfo[2])
                     c.send(('NEWU='+str(i)).encode('utf-8'))
                 f.close()
