@@ -319,7 +319,7 @@ def acceptor():
                     i += 1
                 if bWrite:
                     f.close()
-                    f.open(dataPath +'/'+ fileUserLogin, 'a')
+                    f = open(dataPath +'/'+ fileUserLogin, 'a')
                     f.write('\n'+ str(i) + ',' + userInfo[0] + ',' + userInfo[1] + ',' + userInfo[2])
                     c.send(('NEWU='+str(i)).encode('utf-8'))
                 f.close()
