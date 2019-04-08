@@ -309,14 +309,16 @@ def acceptor():
                 bWrite = True
                 f = open(dataPath + '/' + fileUserLogin, 'a+')
                 userInfo = (data.split('=')[1]).split(',')
+                print(userInfo)
                 for line in f.readlines():
-                    if userInfo[0] == line.split(',')[1]:
+                    print(line)
+                    if userInfo[0].lower() == line.split(',')[1].lower():
                         c.send(b'NEWU=user exists')
                         bWrite = False
                         break
                     i += 1
                 if bWrite:
-                    f.write(str(i) + ',' + userInfo[0] + ',' + userInfo[1] + ',' + userInfo[2])
+                    f.write('\n'+ str(i) + ',' + userInfo[0] + ',' + userInfo[1] + ',' + userInfo[2])
                     c.send(('NEWU='+str(i)).encode('utf-8'))
                 f.close()
             elif data.find('BTTN=') != -1:
