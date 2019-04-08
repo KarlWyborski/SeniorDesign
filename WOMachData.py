@@ -61,7 +61,7 @@ def onRepDown():
 
 
 
-def distance():
+def distance(f, SessionID):
     #Sets TRIGGER to High
     GPIO.output(GPIO_TRIGGER, True)
     
@@ -85,7 +85,14 @@ def distance():
     
     TimeElapsed = StopTime - StartTime
     distance = (TimeElapsed * 34300) / 2
+    if distance > 100:
+        distance = -1
+    else:
+        f.write(str(time.time()) +','+ SessionID +','+ str(distance))
     lblDistance.configure(text='Distance: ' + str(round(distance)))
+    
+    arrDistData.append()
+    
     time.sleep(0.1)
     return distance
 
@@ -99,13 +106,21 @@ def woInProg():
     bRun = True
     b1 = True
     b2 = True
+    f = open(dataPath + '/' + fileSessionData, 'a')
+    SessionID = 0
+    for line in f.readlines():
+        SessionID += 1
+    f.write(str(SessionID)+','+ UserID + str(time.time()))
+    f.close()
+                
+    f = open(dataPath +'/'+ fileWoData, 'a')
     
     tmrStart = time.time()
     tmrEnd = time.time()
     
     #check that bar is at bottom
     while b1:
-        dist=distance()
+        dist=distance(f, SessionID)
         
         if dist > 50:
             b1 = False
@@ -124,7 +139,7 @@ def woInProg():
                 
         #state where you are going down
         while not b2:
-            dist = distance()
+            dist = distance(f, SessionID)
             if dist > 50:
                 b2 = True
                 print('b2 true')
@@ -139,6 +154,7 @@ def woInProg():
             iCurRep = 1
             if iCurSet > iGoalSet:
                 bRun = False
+                f.close()
         lblSet.configure(text = 'Set: ' + str(iCurSet))
         lblRep.configure(text = 'Rep: ' + str(iCurRep))
         
@@ -173,6 +189,16 @@ def initTK():
 def onStart():
     global iCurLbs
     iCurLbs=iGoalLbs
+    
+    ##Setup SessionFile
+    
+    
+    
+    
+    
+    
+    
+    
     
     btnStart.destroy()
     
@@ -224,6 +250,9 @@ def acceptor():
     global iGoalLbs
     global iGoalSet
     global iGoalRep
+    global UserID
+    global UserName
+    global FirstName
     
     while True:
         bLogin = True
@@ -242,21 +271,30 @@ def acceptor():
             print(data)
             if not data:
                 print('data length is 0')
-##                c.shutdown(socket.SHUT_RDWR)
                 c.close()
                 break
+            
             elif data == 'DISC=':
-##                c.shutdown(socket.SHUT_RDWR)
+                print('disconnected')
+                UserID = -1
+                UserName = 'n/a'
+                FirstName= 'n/a'
                 c.close()
                 break
+            
             if data.find('LOGI=') != -1:
                 f = open(dataPath + '/' + fileUserLogin, 'r')
                 userInfo = (data.split('=')[1]).split(',')
                 if len(userInfo) > 1:
                     for line in f.readlines():
+                        print(userInfo[0])
+                        print(line.split(',')[1])
                         if userInfo[0].lower() == line.split(',')[1].lower():
+                            print(userInfo[1])
+                            print(line.split(',')[2])
                             if userInfo[1] == line.split(',')[2]:
                                 c.send(('LOGI=' + line).encode('utf-8'))
+                                UserID, UserName, Password, FirstName = line.split(',')
                                 time.sleep(0.1)
                                 PREW_string()
                             else:
@@ -267,7 +305,16 @@ def acceptor():
                     c.send(('LOGI=' + f.read()[int(userInfo[0])]).encode('utf-8'))
                 
             elif data.find('NEWU=') != -1:
-                c.send(b'NEWU=Accepted')
+                i = 0
+                f = open(dataPath + '/' + fileUserLogin, 'a')
+                userInfo = (data.split('=')[1]).split(',')
+                for line in f.readlines():
+                    if userInfo[0] == line.split(',')[1]:
+                        c.send(b'NEWU=user exists')
+                        break
+                    i += 1
+                f.write(str(i) + ',' + userInfo[0] + ',' + userInfo[1] + ',' + userInfo[2])
+                f.close()
             elif data.find('BTTN=') != -1:
                 if data == 'BTTN=Wup':
                     print('i Goal Lba: ' + str(iGoalLbs))
@@ -319,6 +366,7 @@ conn = []
 dataPath = './data'
 fileUserLogin = 'UserLogin.txt'
 fileWoPlans = 'WoPlans.txt'
+fileSessionData = 'SessionData.txt'
 fileWoData = 'WoData.txt'
 
 if not os.path.isdir(dataPath):
@@ -345,6 +393,13 @@ try:
 except FileNotFoundError:
     print('File for WoData not found. Creating new file...')
     f = open(dataPath + '/' + fileWoData, 'w')
+
+#User Variables
+UserID = -1
+UserName = 'n/a'
+FirstName= 'n/a'
+
+
 
 ##GPIO variables
 GPIO.setmode(GPIO.BOARD)
