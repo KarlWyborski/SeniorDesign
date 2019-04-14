@@ -101,6 +101,7 @@ def woInProg():
     global iCurRep
     global bRun
     
+    GPIO.output(GPIO_RELAY, True)
     
     bRun = True
     b1 = True
@@ -111,7 +112,7 @@ def woInProg():
         SessionID += 1
     f.close()
     f = open(dataPath + '/' + fileSessionData, 'a')
-    f.write(str(SessionID)+','+ UserID + str(time.time()))
+    f.write('\n' + str(SessionID)+','+ UserID +','+ str(time.time()) +','+ str(iGoalLbs) +','+ str(iGoalSet) +','+ str(iGoalRep))
     f.close()
                 
     f = open(dataPath +'/'+ fileWoData, 'a')
@@ -163,17 +164,65 @@ def woInProg():
         f.write('\n' + row)
     f.close()
     
+    clearWOIP()
+    initPREW()
     
 def cleanup():
     GPIO.cleanup()
     win.destroy()
 
 
-def initTK():
-    lblLeftHead.configure(text='Weight')
-    lblCenterHead.configure(text='Number of sets')
-    lblRightHead.configure(text='Number of reps')
+def initPREW():
+    global lblName
     
+    global lblLeftHead
+    global lblCenterHead
+    global lblRightHead
+    
+    global btnStart
+
+    global btnWeightUp
+    global lblWeightValue
+    global btnWeightDown
+
+    global btnSetUp
+    global lblSetValue
+    global btnSetDown
+    
+    global btnRepUp
+    global lblRepValue
+    global btnRepDown
+    
+    GPIO.output(GPIO_RELAY, False)
+    
+    lblName = Label(topFrame, text=FirstName, font='Times 24',padx=50,pady=10)
+    lblName.pack(anchor=E)
+    
+    lblLeftHead = Label(leftFrame, text='Weight\n\n', font='Times 36',width=10)
+    lblLeftHead.pack()
+    lblCenterHead = Label(centerFrame, text='Number\nof sets\n',font='Times 36',width=10)
+    lblCenterHead.pack()
+    lblRightHead = Label(rightFrame, text='Number\nof reps\n', font='Times 36',width=10)
+    lblRightHead.pack()
+
+    btnRepUp = Button(rightFrame, text='UP', font='Times 24', command=onRepUp,width=5)
+    lblRepValue = Label(rightFrame, text=str(iGoalRep), font='Times 24')
+    btnRepDown = Button(rightFrame, text='DOWN', font='Times 24', command=onRepDown)
+    
+    btnStart = Button(centerFrame, text='Start', font='Times 24', command=onStart)
+
+    btnWeightUp = Button(leftFrame, text='UP', font='Times 24', command=onWeightUp)
+    lblWeightValue = Label(leftFrame, text=str(iGoalLbs), font='Times 24')
+    btnWeightDown = Button(leftFrame, text='DOWN', font='Times 24', command=onWeightDown)
+
+    btnSetUp = Button(centerFrame, text='UP', font='Times 24', command=onSetUp)
+    lblSetValue = Label(centerFrame, text=str(iGoalSet), font='Times 24')
+    btnSetDown = Button(centerFrame, text='DOWN', font='Times 24', command=onSetDown)
+
+    btnRepUp = Button(rightFrame, text='UP', font='Times 24', command=onRepUp)
+    lblRepValue = Label(rightFrame, text=str(iGoalRep), font='Times 24')
+    btnRepDown = Button(rightFrame, text='DOWN', font='Times 24', command=onRepDown)
+        
     btnWeightUp.pack()
     lblWeightValue.pack()
     btnWeightDown.pack()
@@ -186,26 +235,9 @@ def initTK():
     lblRepValue.pack()
     btnRepDown.pack()
     
-    
-    
     btnStart.pack()
 
-def onStart():
-    global iCurLbs
-    iCurLbs=iGoalLbs
-    
-    ##Setup SessionFile
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    btnStart.destroy()
-    
+def clearPREW():
     btnWeightUp.destroy()
     lblWeightValue.destroy()
     btnWeightDown.destroy()
@@ -217,6 +249,23 @@ def onStart():
     btnRepUp.destroy()
     lblRepValue.destroy()
     btnRepDown.destroy()
+    
+    btnStart.destroy()
+    
+def initWOIP():
+    global iCurLbs
+    iCurLbs=iGoalLbs
+    
+    global lblWeight
+    global lblSet
+    global lblRep
+    global lblDistance
+    
+    
+    lblWeight = Label(leftFrame, text='', font='Times 24')
+    lblSet = Label(leftFrame, text='', font='Times 24')
+    lblRep = Label(leftFrame, text='', font='Times 24')
+    
     
     lblLeftHead.configure(text='Details')
     lblCenterHead.configure(text='')
@@ -231,6 +280,7 @@ def onStart():
     lblRep.configure(text='Rep: ' + str(iCurRep))
     
     #into right frame
+    lblDistance = Label(rightFrame, text='Distance: ##', font='Times 24')
     lblDistance.pack(anchor=W)
     
     thread_woInProg = threading.Thread(target=woInProg)
@@ -238,6 +288,20 @@ def onStart():
     thread_woInProg.start()
     
     WOIP_string()
+    
+def clearWOIP():
+    lblWeight.destroy()
+    lblSet.destroy()
+    lblRep.destroy()
+    lblDistance.destroy()
+    
+    
+def onStart():
+    clearPREW()
+    initWOIP()
+    
+    
+    
 
 ##-------------------------------------------------
 ##Communications Methods
@@ -269,7 +333,9 @@ def acceptor():
         print(str(a[0]) + ':' + str(a[1]), "connected")
         
         ##waits for login information
-        
+        UserID = '-1'
+        UserName = 'Guest'
+        FirstName = 'Guest'
         while True:
             data = c.recv(1024).decode('utf-8')
             print(data)
@@ -280,10 +346,11 @@ def acceptor():
             
             elif data == 'DISC=':
                 print('disconnected')
-                UserID = -1
-                UserName = 'n/a'
-                FirstName= 'n/a'
+                UserID = '-1'
+                UserName = 'Guest'
+                FirstName= 'Guest'
                 c.close()
+                lblName.configure(text='Guest')
                 break
             
             if data.find('LOGI=') != -1:
@@ -306,7 +373,13 @@ def acceptor():
                         else:
                             c.send(b'LOGI=user not found')
                 else:
-                    c.send(('LOGI=' + f.read()[int(userInfo[0])]).encode('utf-8'))
+                    line = f.readlines()[int(userInfo[0])]
+                    print(userInfo[0])
+                    print(line)
+                    
+                    c.send(('LOGI=' + line).encode('utf-8'))
+                    UserID, UserName, Password, FirstName = line.split(',')
+                lblName.configure(text = FirstName)
                 
             elif data.find('NEWU=') != -1:
                 i = 0
@@ -415,8 +488,8 @@ except FileNotFoundError:
 
 #User Variables
 UserID = '-1'
-UdserName = 'n/a'
-FirstName= 'n/a'
+UdserName = 'Guest'
+FirstName= 'Guest'
 
 #Wordout variables
 arrDistData = []
@@ -425,9 +498,11 @@ arrDistData = []
 ##GPIO variables
 GPIO.setmode(GPIO.BOARD)
 
+GPIO_RELAY = 36
 GPIO_TRIGGER = 38
 GPIO_ECHO = 40
 
+GPIO.setup(GPIO_RELAY, GPIO.OUT)
 GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
 GPIO.setup(GPIO_ECHO, GPIO.IN)
 
@@ -442,50 +517,24 @@ bRun = True
 
 win = Tk()
 ##win.geometry("900x600")
-
-leftFrame = Frame(win, borderwidth=10)
+topFrame = Frame(win,height=2)
+topFrame.pack(fill=X)
+leftFrame = Frame(win, width=10)
 leftFrame.pack(side=LEFT, fill=Y)
-centerFrame = Frame(win,borderwidth=10)
+centerFrame = Frame(win,width=10)
 centerFrame.pack(side=LEFT, fill=Y)
-rightFrame = Frame(win, borderwidth=10)
+rightFrame = Frame(win, width=10)
 rightFrame.pack(side=LEFT, fill=Y)
 
 
-lblLeftHead = Label(leftFrame, text='Left', font='Times 36')
-lblLeftHead.pack()
-lblCenterHead = Label(centerFrame, text='Center',font='Times 36')
-lblCenterHead.pack()
-lblRightHead = Label(rightFrame, text='Right', font='Times 36')
-lblRightHead.pack()
 
 
-
-btnStart = Button(centerFrame, text='Start', font='Times 24', command=onStart)
-
-btnWeightUp = Button(leftFrame, text='UP', font='Times 24', command=onWeightUp)
-lblWeightValue = Label(leftFrame, text=str(iGoalLbs), font='Times 24')
-btnWeightDown = Button(leftFrame, text='DOWN', font='Times 24', command=onWeightDown)
-
-btnSetUp = Button(centerFrame, text='UP', font='Times 24', command=onSetUp)
-lblSetValue = Label(centerFrame, text=str(iGoalSet), font='Times 24')
-btnSetDown = Button(centerFrame, text='DOWN', font='Times 24', command=onSetDown)
-
-btnRepUp = Button(rightFrame, text='UP', font='Times 24', command=onRepUp)
-lblRepValue = Label(rightFrame, text=str(iGoalRep), font='Times 24')
-btnRepDown = Button(rightFrame, text='DOWN', font='Times 24', command=onRepDown)
-
-
-lblWeight = Label(leftFrame, text='lblWeight', font='Times 24')
-lblSet = Label(leftFrame, text='lblSet', font='Times 24')
-lblRep = Label(leftFrame, text='lblRep', font='Times 24')
-
-
-initTK()
+initPREW()
 
 
 
 
-lblDistance = Label(rightFrame, text='Distance: ##', font='Times 24')
+lblDistance = 0
 
 ##btnUp.configure(command=onUp)
 ##btnDown.configure(command=onDown)
