@@ -57,7 +57,9 @@ def onRepDown():
     lblRepValue.configure(text=str(iGoalRep))
     PREW_string()
 
-
+def onContinue():
+    global bContinue
+    bContinue = True
 
 
 
@@ -100,6 +102,7 @@ def woInProg():
     global iCurSet
     global iCurRep
     global bRun
+    global bContinue
     
     GPIO.output(GPIO_RELAY, True)
     
@@ -154,8 +157,19 @@ def woInProg():
         if iCurRep > iGoalRep:
             iCurSet += 1
             iCurRep = 1
+            
+            
             if iCurSet > iGoalSet:
                 bRun = False
+            else:
+                bContinue = False
+                btnContinue = Button(centerFrame, text='Continue', font='Times 24', command=onContinue)
+                btnContinue.pack(anchor=S, pady=50)
+                GPIO.output(GPIO_RELAY, False)
+                while not bContinue:
+                    pass
+                btnContinue.destroy()
+                GPIO.output(GPIO_RELAY, True)
         lblSet.configure(text = 'Set: ' + str(iCurSet))
         lblRep.configure(text = 'Rep: ' + str(iCurRep))
         
@@ -195,8 +209,7 @@ def initPREW():
     
     GPIO.output(GPIO_RELAY, False)
     
-    lblName = Label(topFrame, text=FirstName, font='Times 24',padx=50,pady=10)
-    lblName.pack(anchor=E)
+    
     
     lblLeftHead = Label(leftFrame, text='Weight\n\n', font='Times 36',width=10)
     lblLeftHead.pack()
@@ -238,6 +251,10 @@ def initPREW():
     btnStart.pack()
 
 def clearPREW():
+    lblLeftHead.destroy()
+    lblCenterHead.destroy()
+    lblRightHead.destroy()
+    
     btnWeightUp.destroy()
     lblWeightValue.destroy()
     btnWeightDown.destroy()
@@ -256,20 +273,26 @@ def initWOIP():
     global iCurLbs
     iCurLbs=iGoalLbs
     
+    global lblLeftHead
+    global lblCenterHead
+    global lblRightHead
+    
     global lblWeight
     global lblSet
     global lblRep
     global lblDistance
     
+    lblLeftHead = Label(leftFrame, text='Details\n\n', font='Times 36',width=10)
+    lblLeftHead.pack()
+    lblCenterHead = Label(centerFrame, text='\n\n',font='Times 36',width=10)
+    lblCenterHead.pack()
+    lblRightHead = Label(rightFrame, text='Debigging\n\n', font='Times 36',width=10)
+    lblRightHead.pack()
     
     lblWeight = Label(leftFrame, text='', font='Times 24')
     lblSet = Label(leftFrame, text='', font='Times 24')
     lblRep = Label(leftFrame, text='', font='Times 24')
     
-    
-    lblLeftHead.configure(text='Details')
-    lblCenterHead.configure(text='')
-    lblRightHead.configure(text='Debugging')
     
     #into left frame
     lblWeight.pack(anchor=W)
@@ -290,6 +313,10 @@ def initWOIP():
     WOIP_string()
     
 def clearWOIP():
+    lblLeftHead.destroy()
+    lblCenterHead.destroy()
+    lblRightHead.destroy()
+    
     lblWeight.destroy()
     lblSet.destroy()
     lblRep.destroy()
@@ -517,6 +544,7 @@ bRun = True
 
 win = Tk()
 ##win.geometry("900x600")
+
 topFrame = Frame(win,height=2)
 topFrame.pack(fill=X)
 leftFrame = Frame(win, width=10)
@@ -526,7 +554,8 @@ centerFrame.pack(side=LEFT, fill=Y)
 rightFrame = Frame(win, width=10)
 rightFrame.pack(side=LEFT, fill=Y)
 
-
+lblName = Label(topFrame, text=FirstName, font='Times 24',padx=50,pady=10)
+lblName.pack(anchor=E)
 
 
 initPREW()
