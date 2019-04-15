@@ -91,7 +91,7 @@ def distance(f, SessionID):
         distance = -1
     else:
         arrDistData.append(str(time.time()) +','+ str(distance) +','+ str(SessionID))
-        lblDistance.configure(text=str(round(distance)) + ' cm')
+        lblDistance.configure(text='Distance: ' + str(round(distance)))
     
     
     time.sleep(0.1)
@@ -302,16 +302,16 @@ def initWOIP():
     
     
     #into left frame
-    lblWeight.pack()
+    lblWeight.pack(anchor=W)
     lblWeight.configure(text='Weight: ' + str(iCurLbs))
-    lblSet.pack()
+    lblSet.pack(anchor=W)
     lblSet.configure(text='Set: ' + str(iCurSet))
-    lblRep.pack()
+    lblRep.pack(anchor=W)
     lblRep.configure(text='Rep: ' + str(iCurRep))
     
     #into right frame
-    lblDistance = Label(rightFrame, text='## cm', font='Times 24')
-    lblDistance.pack()
+    lblDistance = Label(rightFrame, text='Distance: ##', font='Times 24')
+    lblDistance.pack(anchor=W)
     
     thread_woInProg = threading.Thread(target=woInProg)
     thread_woInProg.daemon = True
@@ -375,11 +375,7 @@ def acceptor():
             print(data)
             if not data:
                 print('data length is 0')
-                UserID = '-1'
-                UserName = 'Guest'
-                FirstName= 'Guest'
                 c.close()
-                lblName.configure(text='Guest')
                 break
             
             elif data == 'DISC=':
