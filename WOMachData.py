@@ -60,7 +60,7 @@ def onRepDown():
 def onContinue():
     global bContinue
     bContinue = True
-
+#
 
 
 def distance(f, SessionID):
